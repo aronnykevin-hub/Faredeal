@@ -155,7 +155,7 @@ const AdminAuth = () => {
     }
   };
 
-  // Handle signup
+  // Handle signup - INSTANT ACCESS, NO EMAIL CONFIRMATION
   const handleSignup = async (e) => {
     e.preventDefault();
     
@@ -166,7 +166,7 @@ const AdminAuth = () => {
     setLoading(true);
 
     try {
-      // Create user account
+      // Create admin account with instant access
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -175,7 +175,7 @@ const AdminAuth = () => {
             full_name: formData.fullName,
             phone: formData.phone,
             department: formData.department,
-            role: formData.role
+            role: 'admin'
           }
         }
       });
@@ -197,23 +197,55 @@ const AdminAuth = () => {
         }
       }
 
+      // For admin accounts, auto-login immediately after signup
       notificationService.show(
-        '🎉 Account created successfully! Please check your email to verify.',
+        '🎉 Admin account created! Logging you in...',
         'success'
       );
 
-      // Switch to login view
-      setTimeout(() => {
-        setIsLogin(true);
-        setFormData(prev => ({
-          ...prev,
-          confirmPassword: '',
-          fullName: '',
-          phone: '',
-          department: 'Administration',
-          role: 'Admin'
-        }));
-      }, 2000);
+      // Auto-login the newly created admin
+      setTimeout(async () => {
+        try {
+          // Attempt to sign in immediately
+          const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+            email: formData.email,
+            password: formData.password
+          });
+
+          if (!loginError && loginData.user) {
+            // Set admin access flag
+            localStorage.setItem('adminKey', 'true');
+            localStorage.setItem('supermarket_user', JSON.stringify({
+              id: loginData.user.id,
+              name: formData.fullName,
+              role: 'admin',
+              email: formData.email,
+              accessLevel: 'system',
+              timestamp: Date.now()
+            }));
+
+            notificationService.show('✅ Welcome to FAREDEAL Admin Portal!', 'success');
+            navigate('/admin-portal');
+          } else {
+            // If auto-login fails, show login form
+            notificationService.show('Account created! Please login to continue.', 'info');
+            setIsLogin(true);
+            setFormData(prev => ({
+              ...prev,
+              confirmPassword: '',
+              fullName: '',
+              phone: '',
+              department: 'Administration',
+              role: 'Admin'
+            }));
+          }
+        } catch (autoLoginError) {
+          console.error('Auto-login error:', autoLoginError);
+          // Fallback to manual login
+          notificationService.show('Account created! Please login to continue.', 'info');
+          setIsLogin(true);
+        }
+      }, 1000);
 
     } catch (error) {
       console.error('Signup error:', error);

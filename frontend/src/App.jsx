@@ -43,44 +43,27 @@ function App() {
     return isAdminRoute;
   };
 
-  // Auto-login based on access type
+  // Set admin mode based on URL
   useEffect(() => {
-    const autoLogin = async () => {
+    const setAdminMode = () => {
       try {
         const isAdmin = checkAdminAccess();
         
         if (isAdmin) {
-          // Store admin access flag
+          // Just set admin flag, don't auto-create user data
+          // Let Supabase handle authentication
           localStorage.setItem('adminKey', 'true');
-          // Admin auto-login
-          localStorage.setItem('supermarket_user', JSON.stringify({
-            id: 1,
-            name: "System Admin",
-            role: "admin",
-            email: "admin",
-            accessLevel: "system",
-            timestamp: Date.now()
-          }));
         } else {
           // Don't clear admin access if on admin routes
           if (!window.location.pathname.includes('/admin')) {
             localStorage.removeItem('adminKey');
           }
-          // Regular portal auto-login
-          localStorage.setItem('supermarket_user', JSON.stringify({
-            id: Date.now(),
-            name: "Portal User",
-            role: "user",
-            email: "user",
-            accessLevel: "standard",
-            timestamp: Date.now()
-          }));
         }
       } catch (error) {
-        console.log('Auto-login setup:', error);
+        console.log('Admin mode setup:', error);
       }
     };
-    autoLogin();
+    setAdminMode();
   }, [window.location.search, window.location.hash, window.location.pathname]);
 
   const isAdmin = checkAdminAccess();
@@ -96,7 +79,7 @@ function App() {
                 path="/" 
                 element={
                   isAdmin 
-                    ? <Navigate to="/admin-portal" replace /> 
+                    ? <Navigate to="/admin-login" replace /> 
                     : <Navigate to="/portal-selection" replace />
                 } 
               />
@@ -105,6 +88,7 @@ function App() {
               <Route path="/admin-login" element={<AdminAuth />} />
               <Route path="/admin-auth" element={<AdminAuth />} />
               <Route path="/admin-signup" element={<AdminAuth />} />
+              <Route path="/admin" element={<Navigate to="/admin-login" replace />} />
               
               {/* Admin routes - protected, require authentication */}
               <Route 

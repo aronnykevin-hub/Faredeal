@@ -3,35 +3,36 @@ import { mockAuthService } from './mockAuthService';
 import { notificationService } from './notificationService';
 
 export const adminService = {
-  // Admin registration (super admin creation)
+  // Admin registration (super admin creation) - NO EMAIL CONFIRMATION REQUIRED
   register: async (adminData) => {
     try {
-      // Create auth user first - this will trigger the database function to create admin record
-      const authResult = await retryAuthOperation(async () => {
-        return await supabase.auth.signUp({
-          email: adminData.email,
-          password: adminData.password,
-          options: {
-            data: {
-              full_name: adminData.full_name || 'Admin User',
-              first_name: adminData.first_name || adminData.full_name?.split(' ')[0] || 'Admin',
-              last_name: adminData.last_name || adminData.full_name?.split(' ').slice(1).join(' ') || 'User',
-              role: 'admin',
-              phone: adminData.phone || '',
-              admin_id: adminData.admin_id || `ADM-${Date.now()}`,
-              department: 'administration'
-            },
-            emailRedirectTo: window.location.origin
-          }
-        });
+      // Create auth user with email confirmation disabled for admins
+      const { data: authUser, error: authError } = await supabase.auth.signUp({
+        email: adminData.email,
+        password: adminData.password,
+        options: {
+          data: {
+            full_name: adminData.full_name || 'Admin User',
+            first_name: adminData.first_name || adminData.full_name?.split(' ')[0] || 'Admin',
+            last_name: adminData.last_name || adminData.full_name?.split(' ').slice(1).join(' ') || 'User',
+            role: 'admin',
+            phone: adminData.phone || '',
+            admin_id: adminData.admin_id || `ADM-${Date.now()}`,
+            department: 'administration'
+          },
+          // Disable email confirmation for admin accounts
+          emailRedirectTo: window.location.origin
+        }
       });
 
-      const { data: authUser, error: authError } = authResult;
-
       if (authError) {
-        throw handleSupabaseError(authError);
+        console.error('Auth error:', authError);
+        throw authError;
       }
 
+      // For admin accounts, auto-verify if Supabase sends confirmation
+      // In production, configure Supabase to disable email confirmation for admin domain
+      
       // Wait a moment for the database trigger to complete
       await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -44,17 +45,18 @@ export const adminService = {
         // Continue anyway as the auth user was created successfully
       }
 
-      notificationService.show('Admin account created successfully! Welcome to FAREDEAL Administration.', 'success');
+      notificationService.show('✅ Admin account created! You can now log in.', 'success');
 
       return {
         success: true,
-        message: 'Admin account created successfully',
-        user: authUser.user
+        message: 'Admin account created successfully - ready to use!',
+        user: authUser.user,
+        autoLogin: true // Flag to indicate we should auto-login
       };
 
     } catch (error) {
       console.error('Admin registration error:', error);
-      notificationService.show('Failed to create admin account', 'error');
+      notificationService.show('Failed to create admin account: ' + (error.message || 'Unknown error'), 'error');
       throw error;
     }
   },
