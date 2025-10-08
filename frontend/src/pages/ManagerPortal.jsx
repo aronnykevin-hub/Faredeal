@@ -19,6 +19,8 @@ import {
   BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area, ComposedChart
 } from 'recharts';
 import InventoryManagement from '../components/InventoryManagement';
+import SupplierManagement from '../components/SupplierManagement';
+import ProductInventoryInterface from '../components/ProductInventoryInterface';
 import { toast } from 'react-toastify';
 
 // Lazy load the new components for better performance
@@ -221,6 +223,7 @@ const ManagerPortal = () => {
   
   // Modal and UI States
   const [showInventoryModal, setShowInventoryModal] = useState(false);
+  const [showSupplierManagementModal, setShowSupplierManagementModal] = useState(false);
   const [editModal, setEditModal] = useState({
     isOpen: false,
     type: '',
@@ -7998,11 +8001,18 @@ _Automated Business Report System_`)}`;
     <div className="space-y-6 animate-fadeInUp">
       <div className="bg-white rounded-xl p-6 shadow-lg">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-gray-900">Supplier Verification</h3>
+          <h3 className="text-xl font-bold text-gray-900">Supplier Management Dashboard</h3>
           <div className="flex items-center space-x-4">
             <span className="text-sm text-gray-600">
               {pendingSuppliers.filter(s => s.status === 'pending').length} Pending Approval
             </span>
+            <button 
+              onClick={() => setShowSupplierManagementModal(true)}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300 flex items-center space-x-2 shadow-lg"
+            >
+              <FiTruck className="h-5 w-5" />
+              <span>Open Supplier Management</span>
+            </button>
             <button 
               onClick={() => openEditModal('supplier', null, 'add')}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all duration-300 flex items-center space-x-2"
@@ -8010,6 +8020,46 @@ _Automated Business Report System_`)}`;
               <FiPlus className="h-4 w-4" />
               <span>Add New Supplier</span>
             </button>
+          </div>
+        </div>
+
+        {/* Enhanced Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-green-600">Total Suppliers</p>
+                <p className="text-2xl font-bold text-green-700">{pendingSuppliers.length}</p>
+              </div>
+              <div className="text-2xl">🏢</div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-yellow-600">Pending Approval</p>
+                <p className="text-2xl font-bold text-yellow-700">{pendingSuppliers.filter(s => s.status === 'pending').length}</p>
+              </div>
+              <div className="text-2xl">⏳</div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-blue-600">Active Orders</p>
+                <p className="text-2xl font-bold text-blue-700">42</p>
+              </div>
+              <div className="text-2xl">📦</div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-purple-600">Payment Issues</p>
+                <p className="text-2xl font-bold text-purple-700">5</p>
+              </div>
+              <div className="text-2xl">💰</div>
+            </div>
           </div>
         </div>
         
@@ -9409,41 +9459,54 @@ FAREDEAL Uganda Management Team
 
   const renderInventoryAccess = () => (
     <div className="space-y-6 animate-fadeInUp">
-      {/* Inventory Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[
-          { title: 'Total Products', value: inventoryStats.totalProducts, icon: FiPackage, color: 'from-blue-500 to-blue-600', change: '+5.2%' },
-          { title: 'Low Stock Items', value: inventoryStats.lowStockItems, icon: FiAlertTriangle, color: 'from-yellow-500 to-yellow-600', change: '-12%' },
-          { title: 'Out of Stock', value: inventoryStats.outOfStockItems, icon: FiXCircle, color: 'from-red-500 to-red-600', change: '-8%' },
-          { title: 'Total Value', value: formatCurrency(inventoryStats.totalValue), icon: FiDollarSign, color: 'from-green-500 to-green-600', change: '+15%' }
-        ].map((metric, index) => (
-          <div key={index} className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-medium">{metric.title}</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{metric.value}</p>
-                <p className="text-green-600 text-sm font-medium mt-1 flex items-center">
-                  <FiTrendingUp className="h-3 w-3 mr-1" />
-                  {metric.change}
-                </p>
+      {/* Enhanced Inventory Overview */}
+      <div className="bg-white rounded-xl shadow-xl overflow-hidden">
+        <div className="p-6 border-b bg-gradient-to-r from-green-500 to-emerald-600 text-white">
+          <h2 className="text-2xl font-bold mb-2">🏪 Manager Inventory Control</h2>
+          <p className="text-green-100">Complete inventory management with advanced analytics and control features</p>
+        </div>
+
+        {/* Manager Stats Dashboard */}
+        <div className="p-6 bg-gray-50 border-b">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { title: 'Total Products', value: inventoryStats.totalProducts, icon: FiPackage, color: 'from-blue-500 to-blue-600', change: '+5.2%' },
+              { title: 'Low Stock Items', value: inventoryStats.lowStockItems, icon: FiAlertTriangle, color: 'from-yellow-500 to-yellow-600', change: '-12%' },
+              { title: 'Out of Stock', value: inventoryStats.outOfStockItems, icon: FiXCircle, color: 'from-red-500 to-red-600', change: '-8%' },
+              { title: 'Total Value', value: formatCurrency(inventoryStats.totalValue), icon: FiDollarSign, color: 'from-green-500 to-green-600', change: '+15%' }
+            ].map((metric, index) => (
+              <div key={index} className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-600 text-sm font-medium">{metric.title}</p>
+                    <p className="text-2xl font-bold text-gray-900 mt-1">{metric.value}</p>
+                    <p className="text-green-600 text-sm font-medium mt-1 flex items-center">
+                      <FiTrendingUp className="h-3 w-3 mr-1" />
+                      {metric.change}
+                    </p>
+                  </div>
+                  <div className={`p-3 rounded-lg bg-gradient-to-r ${metric.color}`}>
+                    <metric.icon className="h-6 w-6 text-white" />
+                  </div>
+                </div>
               </div>
-              <div className={`p-3 rounded-lg bg-gradient-to-r ${metric.color}`}>
-                <metric.icon className="h-6 w-6 text-white" />
-              </div>
-            </div>
+            ))}
           </div>
-        ))}
+        </div>
+
+        {/* Full Inventory Interface for Manager */}
+        <ProductInventoryInterface />
       </div>
 
-      {/* Quick Actions */}
+      {/* Manager Quick Actions */}
       <div className="bg-white rounded-xl p-6 shadow-lg">
-        <h3 className="text-xl font-bold text-gray-900 mb-6">Inventory Management Actions</h3>
+        <h3 className="text-xl font-bold text-gray-900 mb-6">📊 Manager Inventory Actions</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { title: 'Open Full Inventory', icon: FiPackage, color: 'bg-blue-600 hover:bg-blue-700', action: () => setShowInventoryModal(true) },
-            { title: 'Refresh Data', icon: FiRefreshCw, color: 'bg-green-600 hover:bg-green-700', action: () => handleInventoryAction('refresh') },
-            { title: 'Low Stock Alert', icon: FiAlertTriangle, color: 'bg-yellow-600 hover:bg-yellow-700', action: () => handleInventoryAction('low_stock_alert') },
-            { title: 'Generate Report', icon: FiDownload, color: 'bg-purple-600 hover:bg-purple-700', action: () => handleInventoryAction('generate_report') }
+            { title: 'Advanced Analytics', icon: FiBarChart, color: 'bg-indigo-600 hover:bg-indigo-700', action: () => toast.info('📊 Advanced analytics coming soon') },
+            { title: 'Bulk Operations', icon: FiPackage, color: 'bg-blue-600 hover:bg-blue-700', action: () => toast.info('🔄 Bulk operations available in products section') },
+            { title: 'Auto Reorder Setup', icon: FiZap, color: 'bg-purple-600 hover:bg-purple-700', action: () => toast.info('⚡ Auto-reorder configuration coming soon') },
+            { title: 'Supplier Reports', icon: FiDownload, color: 'bg-green-600 hover:bg-green-700', action: () => toast.info('📈 Generating supplier performance report...') }
           ].map((action, index) => (
             <button
               key={index}
@@ -9457,27 +9520,27 @@ FAREDEAL Uganda Management Team
         </div>
       </div>
 
-      {/* Category Performance */}
+      {/* Performance Insights */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl p-6 shadow-lg">
-          <h3 className="text-xl font-bold text-gray-900 mb-6">Top Categories by Value</h3>
+          <h3 className="text-xl font-bold text-gray-900 mb-6">Top Performing Categories</h3>
           <div className="space-y-4">
             {inventoryStats.topCategories.map((category, index) => (
               <div key={index} className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-bold text-blue-600">{index + 1}</span>
+                  <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center">
+                    <span className="text-sm font-bold text-white">{index + 1}</span>
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">{category.name}</p>
-                    <p className="text-sm text-gray-600">{category.percentage}% of total</p>
+                    <p className="text-sm text-gray-600">{category.percentage}% of total value</p>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-gray-900">{formatCurrency(category.value)}</p>
                   <div className="w-24 bg-gray-200 rounded-full h-2 mt-1">
                     <div
-                      className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full"
+                      className="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full"
                       style={{ width: `${category.percentage}%` }}
                     ></div>
                   </div>
@@ -9488,7 +9551,7 @@ FAREDEAL Uganda Management Team
         </div>
 
         <div className="bg-white rounded-xl p-6 shadow-lg">
-          <h3 className="text-xl font-bold text-gray-900 mb-6">Recent Inventory Activities</h3>
+          <h3 className="text-xl font-bold text-gray-900 mb-6">Recent Manager Activities</h3>
           <div className="space-y-4">
             {inventoryStats.recentActivities.map((activity, index) => (
               <div key={index} className="flex items-center space-x-4">
@@ -9509,53 +9572,6 @@ FAREDEAL Uganda Management Team
               </div>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* Inventory Stats */}
-      <div className="bg-white rounded-xl p-6 shadow-lg">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-gray-900">Inventory Statistics</h3>
-          <div className="text-sm text-gray-600">
-            Last Updated: {inventoryStats.lastUpdated}
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center p-4 border rounded-lg">
-            <div className="text-3xl mb-2">📦</div>
-            <div className="text-2xl font-bold text-blue-600">{inventoryStats.categoriesCount}</div>
-            <div className="text-sm text-gray-600">Product Categories</div>
-          </div>
-          <div className="text-center p-4 border rounded-lg">
-            <div className="text-3xl mb-2">🏭</div>
-            <div className="text-2xl font-bold text-green-600">{inventoryStats.suppliersCount}</div>
-            <div className="text-sm text-gray-600">Active Suppliers</div>
-          </div>
-          <div className="text-center p-4 border rounded-lg">
-            <div className="text-3xl mb-2">📊</div>
-            <div className="text-2xl font-bold text-purple-600">
-              {((inventoryStats.totalProducts - inventoryStats.outOfStockItems) / inventoryStats.totalProducts * 100).toFixed(1)}%
-            </div>
-            <div className="text-sm text-gray-600">Stock Availability</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Access Full Inventory Button */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-xl font-bold mb-2">Full Inventory Management</h3>
-            <p className="text-blue-100">Access the complete inventory system with advanced features</p>
-          </div>
-          <button
-            onClick={() => setShowInventoryModal(true)}
-            className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center space-x-2"
-          >
-            <FiPackage className="h-5 w-5" />
-            <span>Open Inventory System</span>
-          </button>
         </div>
       </div>
     </div>
@@ -11662,6 +11678,12 @@ FAREDEAL Uganda Management Team
           background-clip: text;
         }
       `}</style>
+
+      {/* Enhanced Supplier Management Modal */}
+      <SupplierManagement 
+        isOpen={showSupplierManagementModal} 
+        onClose={() => setShowSupplierManagementModal(false)} 
+      />
     </div>
   );
 };

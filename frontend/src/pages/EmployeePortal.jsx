@@ -16,6 +16,7 @@ import {
   BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area
 } from 'recharts';
 import BarcodeScannerModal from '../components/BarcodeScannerModal';
+import ProductInventoryInterface from '../components/ProductInventoryInterface';
 
 const CashierPortal = () => {
   const [activeTab, setActiveTab] = useState('pos');
@@ -883,26 +884,44 @@ const CashierPortal = () => {
   );
 
   const renderInventory = () => (
-    <div className="space-y-6 animate-zoomIn container-gradient rounded-2xl p-8 shadow-lg">
-      <div className="bg-white rounded-xl p-6 shadow-lg">
-        <h3 className="text-xl font-bold text-gray-900 mb-6">📦 Till & Station Supplies</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="space-y-6 animate-zoomIn">
+      {/* Enhanced Inventory Header */}
+      <div className="bg-gradient-to-r from-blue-500 to-emerald-600 rounded-xl p-6 text-white shadow-xl">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-2xl font-bold mb-2">📦 Complete Inventory Management</h3>
+            <p className="text-blue-100">Full product inventory with reorder and adjustment capabilities</p>
+          </div>
+          <div className="text-right">
+            <div className="text-3xl font-bold">6</div>
+            <div className="text-blue-100 text-sm">Products Available</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Till Supplies Quick View */}
+      <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+        <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <span className="mr-2">🏪</span>
+          Till & Station Supplies
+        </h4>
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
           {[
             { item: 'Shopping Bags', stock: 150, minStock: 50, status: 'good' },
-            { item: 'Receipt Paper Rolls', stock: 8, minStock: 15, status: 'low' },
+            { item: 'Receipt Paper', stock: 8, minStock: 15, status: 'low' },
             { item: 'Coin Trays', stock: 3, minStock: 5, status: 'critical' },
             { item: 'Sanitizer', stock: 12, minStock: 10, status: 'good' },
             { item: 'Price Tags', stock: 25, minStock: 30, status: 'low' },
-            { item: 'Calculator Batteries', stock: 6, minStock: 8, status: 'good' }
+            { item: 'Batteries', stock: 6, minStock: 8, status: 'good' }
           ].map((supply, index) => (
-            <div key={index} className={`p-4 border rounded-lg ${
+            <div key={index} className={`p-3 border-2 rounded-lg text-center ${
               supply.status === 'critical' ? 'border-red-300 bg-red-50' :
               supply.status === 'low' ? 'border-yellow-300 bg-yellow-50' :
               'border-green-300 bg-green-50'
             }`}>
-              <h4 className="font-semibold text-gray-900">{supply.item}</h4>
-              <p className="text-sm text-gray-600">Current: {supply.stock} | Min: {supply.minStock}</p>
-              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full mt-2 ${
+              <h5 className="font-medium text-gray-900 text-sm">{supply.item}</h5>
+              <p className="text-xs text-gray-600 mt-1">{supply.stock}/{supply.minStock}</p>
+              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full mt-1 ${
                 supply.status === 'critical' ? 'bg-red-100 text-red-800' :
                 supply.status === 'low' ? 'bg-yellow-100 text-yellow-800' :
                 'bg-green-100 text-green-800'
@@ -910,6 +929,36 @@ const CashierPortal = () => {
                 {supply.status}
               </span>
             </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Full Product Inventory Interface */}
+      <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200">
+        <ProductInventoryInterface />
+      </div>
+
+      {/* Cashier Quick Actions */}
+      <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-200">
+        <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <span className="mr-2">⚡</span>
+          Quick Cashier Actions
+        </h4>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { title: 'Price Check', icon: '🏷️', color: 'bg-blue-600 hover:bg-blue-700', action: () => alert('Price check scanner activated') },
+            { title: 'Stock Alert', icon: '⚠️', color: 'bg-yellow-600 hover:bg-yellow-700', action: () => alert('Stock alert system activated') },
+            { title: 'Request Restock', icon: '📞', color: 'bg-green-600 hover:bg-green-700', action: () => alert('Restock request sent to manager') },
+            { title: 'Report Issue', icon: '🚨', color: 'bg-red-600 hover:bg-red-700', action: () => alert('Issue reporting system opened') }
+          ].map((action, index) => (
+            <button
+              key={index}
+              onClick={action.action}
+              className={`${action.color} text-white p-4 rounded-lg transition-all duration-300 transform hover:scale-105 flex flex-col items-center space-y-2 text-sm font-medium`}
+            >
+              <span className="text-2xl">{action.icon}</span>
+              <span>{action.title}</span>
+            </button>
           ))}
         </div>
       </div>

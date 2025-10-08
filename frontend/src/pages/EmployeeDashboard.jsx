@@ -15,6 +15,7 @@ import {
 import { toast } from 'react-toastify';
 import AdvancedPOS from '../components/AdvancedPOS';
 import SupplierManagement from '../components/SupplierManagement';
+import ProductInventoryInterface from '../components/ProductInventoryInterface';
 
 const EmployeeDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -573,72 +574,34 @@ const EmployeeDashboard = () => {
           </div>
         )}
 
-        {/* Inventory Tab */}
+        {/* Inventory Tab - Enhanced with Full Functionality */}
         {activeTab === 'inventory' && (
-          <div className="bg-white rounded-3xl shadow-xl p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Inventory Management</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl p-6 text-white">
-                <h3 className="text-xl font-bold mb-2">Total Inventory Value</h3>
-                <p className="text-3xl font-bold">${quickStats.inventoryValue.toLocaleString()}</p>
-              </div>
-              <div className="bg-gradient-to-r from-red-500 to-pink-500 rounded-2xl p-6 text-white">
-                <h3 className="text-xl font-bold mb-2">Low Stock Items</h3>
-                <p className="text-3xl font-bold">{quickStats.lowStockItems}</p>
-              </div>
-              <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl p-6 text-white">
-                <h3 className="text-xl font-bold mb-2">Active Products</h3>
-                <p className="text-3xl font-bold">1,247</p>
+          <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+            <div className="p-6 border-b bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
+              <h2 className="text-2xl font-bold mb-2">📦 Inventory Management</h2>
+              <p className="text-blue-100">Complete inventory control with reorder and adjustment capabilities</p>
+            </div>
+            
+            {/* Stats Overview */}
+            <div className="p-6 bg-gray-50 border-b">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl p-6 text-white">
+                  <h3 className="text-xl font-bold mb-2">Total Inventory Value</h3>
+                  <p className="text-3xl font-bold">UGX {quickStats.inventoryValue.toLocaleString()}</p>
+                </div>
+                <div className="bg-gradient-to-r from-red-500 to-pink-500 rounded-2xl p-6 text-white">
+                  <h3 className="text-xl font-bold mb-2">Low Stock Items</h3>
+                  <p className="text-3xl font-bold">{quickStats.lowStockItems}</p>
+                </div>
+                <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl p-6 text-white">
+                  <h3 className="text-xl font-bold mb-2">Active Products</h3>
+                  <p className="text-3xl font-bold">6</p>
+                </div>
               </div>
             </div>
             
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-4 px-6 font-bold text-gray-900">Product</th>
-                    <th className="text-left py-4 px-6 font-bold text-gray-900">Category</th>
-                    <th className="text-left py-4 px-6 font-bold text-gray-900">Current Stock</th>
-                    <th className="text-left py-4 px-6 font-bold text-gray-900">Min Stock</th>
-                    <th className="text-left py-4 px-6 font-bold text-gray-900">Status</th>
-                    <th className="text-left py-4 px-6 font-bold text-gray-900">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {inventoryAlerts.map(item => (
-                    <tr key={item.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-4 px-6 font-medium text-gray-900">{item.product}</td>
-                      <td className="py-4 px-6 text-gray-600">{item.category}</td>
-                      <td className="py-4 px-6 text-gray-600">{item.currentStock}</td>
-                      <td className="py-4 px-6 text-gray-600">{item.minStock}</td>
-                      <td className="py-4 px-6">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          item.status === 'critical' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {item.status}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6">
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => handleInventoryAction('reorder', item)}
-                            className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
-                          >
-                            Reorder
-                          </button>
-                          <button
-                            onClick={() => handleInventoryAction('adjust', item)}
-                            className="bg-gray-500 text-white px-3 py-1 rounded text-xs hover:bg-gray-600 transition-colors"
-                          >
-                            Adjust
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {/* Full Inventory Interface */}
+            <ProductInventoryInterface />
           </div>
         )}
 

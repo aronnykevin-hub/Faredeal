@@ -1,36 +1,44 @@
 {
   "name": "faredeal-backend",
   "version": "1.0.0",
-  "description": "Backend services for FareDeal POS system",
+  "description": "FAREDEAL POS System Backend - Database and API services",
   "type": "module",
-  "main": "server.js",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "db:init": "node initialize_db.js db/schema",
-    "db:clean": "node initialize_db.js clean",
-    "db:seed": "node scripts/seed.js",
+    "start": "node start-server.js",
+    "start:direct": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "dev:check": "node start-server.js",
+    "setup": "node src/setup-application-database.js",
+    "seed": "node src/setup-application-database.js seed",
+    "execute": "node src/execute-database.js",
+    "setup-old": "node src/setup-database.js setup",
+    "init-db": "node src/database-initializer.js",
+    "health": "curl http://localhost:3001/api/health",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "pos",
     "point-of-sale",
-    "supabase",
+    "inventory",
     "retail",
-    "inventory"
+    "business-management",
+    "supabase"
   ],
-  "author": "FareDeal Team",
+  "author": "FAREDEAL Team",
   "license": "MIT",
   "dependencies": {
-    "@supabase/supabase-js": "^2.57.4",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
+    "@supabase/supabase-js": "^2.45.4",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
     "cors": "^2.8.5",
     "helmet": "^7.1.0",
-    "compression": "^1.7.4"
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.1.4"
   },
   "engines": {
     "node": ">=18.0.0"

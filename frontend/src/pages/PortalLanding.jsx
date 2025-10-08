@@ -5,6 +5,7 @@ import {
   FiTrendingUp, FiBarChart, FiPackage, FiShoppingBag, FiBell,
   FiAward, FiTarget, FiZap, FiGift, FiNavigation, FiCheckCircle
 } from 'react-icons/fi';
+import SupabaseConnectionTest from '../components/SupabaseConnectionTest';
 
 const PortalLanding = () => {
   const navigate = useNavigate();
@@ -279,6 +280,11 @@ const PortalLanding = () => {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Supabase Connection Test */}
+        <div className="mb-8">
+          <SupabaseConnectionTest />
         </div>
 
         {/* Call to Action */}

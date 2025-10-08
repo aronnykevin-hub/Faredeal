@@ -5,9 +5,12 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { AppProvider } from '@/contexts/AppContext';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import FloatingScanner from '@/components/FloatingScanner';
+import AdminProtectedRoute from '@/components/AdminProtectedRoute';
 
 // Pages and Components
 import AdminPortal from '@/pages/AdminPortal';
+import AdminProfile from '@/pages/AdminProfile';
+import AdminAuth from '@/pages/AdminAuth';
 import ManagerPortal from '@/pages/ManagerPortal';
 import EmployeePortal from '@/pages/EmployeePortal';
 import SupplierPortal from '@/pages/SupplierPortal';
@@ -29,11 +32,12 @@ import CustomerDelivery from '@/pages/CustomerDelivery';
 import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
-  // Simple admin access check using #admin hash
+  // Simple admin access check using #admin hash or localStorage
   const checkAdminAccess = () => {
-    // Check for #admin in URL or stored admin access
+    // Check for #admin in URL or stored admin access or admin-related paths
     const isAdminRoute = 
       window.location.hash === '#admin' || 
+      window.location.pathname.includes('/admin') ||
       localStorage.getItem('adminKey') === 'true';
     
     return isAdminRoute;
@@ -58,8 +62,10 @@ function App() {
             timestamp: Date.now()
           }));
         } else {
-          // Clear admin access if exists
-          localStorage.removeItem('adminKey');
+          // Don't clear admin access if on admin routes
+          if (!window.location.pathname.includes('/admin')) {
+            localStorage.removeItem('adminKey');
+          }
           // Regular portal auto-login
           localStorage.setItem('supermarket_user', JSON.stringify({
             id: Date.now(),
@@ -75,7 +81,7 @@ function App() {
       }
     };
     autoLogin();
-  }, [window.location.search, window.location.hash]);
+  }, [window.location.search, window.location.hash, window.location.pathname]);
 
   const isAdmin = checkAdminAccess();
 
@@ -95,14 +101,44 @@ function App() {
                 } 
               />
               
-              {/* Admin routes - only visible with #admin */}
-              {isAdmin && (
-                <>
-                  <Route path="/admin-portal" element={<AdminPortal />} />
-                  <Route path="/system-admin" element={<AdminPortal />} />
-                  <Route path="/admin-dashboard" element={<AdminPortal />} />
-                </>
-              )}
+              {/* Admin authentication routes - always accessible */}
+              <Route path="/admin-login" element={<AdminAuth />} />
+              <Route path="/admin-auth" element={<AdminAuth />} />
+              <Route path="/admin-signup" element={<AdminAuth />} />
+              
+              {/* Admin routes - protected, require authentication */}
+              <Route 
+                path="/admin-portal" 
+                element={
+                  <AdminProtectedRoute>
+                    <AdminPortal />
+                  </AdminProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/system-admin" 
+                element={
+                  <AdminProtectedRoute>
+                    <AdminPortal />
+                  </AdminProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin-dashboard" 
+                element={
+                  <AdminProtectedRoute>
+                    <AdminPortal />
+                  </AdminProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin-profile" 
+                element={
+                  <AdminProtectedRoute>
+                    <AdminProfile />
+                  </AdminProtectedRoute>
+                } 
+              />
               
               {/* Direct access to all portals */}
               <Route path="/portal-selection" element={<PortalLanding />} />
