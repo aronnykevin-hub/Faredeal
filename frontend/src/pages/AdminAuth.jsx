@@ -197,11 +197,22 @@ const AdminAuth = () => {
         }
       }
 
-      // For admin accounts, auto-login immediately after signup
-      notificationService.show(
-        '🎉 Admin account created! Logging you in...',
-        'success'
-      );
+      // Check if user is auto-confirmed (admin role has instant access)
+      const isAutoConfirmed = data.user?.email_confirmed_at || data.user?.confirmed_at;
+      
+      if (isAutoConfirmed) {
+        // Admin is auto-confirmed - provide instant access
+        notificationService.show(
+          '🎉 Admin account created! Instant access granted. Logging you in...',
+          'success'
+        );
+      } else {
+        // Should not happen for admin, but handle gracefully
+        notificationService.show(
+          '✅ Account created! Attempting to log you in...',
+          'success'
+        );
+      }
 
       // Auto-login the newly created admin
       setTimeout(async () => {
@@ -227,17 +238,40 @@ const AdminAuth = () => {
             notificationService.show('✅ Welcome to FAREDEAL Admin Portal!', 'success');
             navigate('/admin-portal');
           } else {
-            // If auto-login fails, show login form
-            notificationService.show('Account created! Please login to continue.', 'info');
-            setIsLogin(true);
-            setFormData(prev => ({
-              ...prev,
-              confirmPassword: '',
-              fullName: '',
-              phone: '',
-              department: 'Administration',
-              role: 'Admin'
-            }));
+            // If auto-login fails, check if it's due to email verification
+            if (loginError?.message?.toLowerCase().includes('email') || 
+                loginError?.message?.toLowerCase().includes('confirm')) {
+              notificationService.show(
+                '⚠️ Email verification pending. Please check your email and click the verification link.', 
+                'warning'
+              );
+              // Keep signup form visible with email
+              setFormData(prev => ({
+                email: prev.email,
+                password: '',
+                confirmPassword: '',
+                fullName: '',
+                phone: '',
+                department: 'Administration',
+                role: 'Admin'
+              }));
+            } else {
+              // Other login error
+              notificationService.show(
+                'Account created! Please login to continue.', 
+                'info'
+              );
+              setIsLogin(true);
+              setFormData(prev => ({
+                email: prev.email,
+                password: '',
+                confirmPassword: '',
+                fullName: '',
+                phone: '',
+                department: 'Administration',
+                role: 'Admin'
+              }));
+            }
           }
         } catch (autoLoginError) {
           console.error('Auto-login error:', autoLoginError);

@@ -803,6 +803,260 @@ const CashierPortal = () => {
     </div>
   );
 
+  const renderProfile = () => (
+    <div className="space-y-6 animate-fadeInUp">
+      {/* Profile Header Card */}
+      <div className="bg-gradient-to-r from-yellow-500 via-red-600 to-black rounded-2xl shadow-2xl overflow-hidden">
+        <div className="p-8">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center space-x-6">
+              {/* Profile Avatar */}
+              <div className="relative">
+                <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-xl">
+                  <span className="text-6xl">{cashierProfile.avatar}</span>
+                </div>
+                <div className="absolute bottom-0 right-0 w-10 h-10 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
+                  <FiCheckCircle className="text-white h-5 w-5" />
+                </div>
+              </div>
+              
+              {/* Profile Info */}
+              <div className="text-white">
+                <h1 className="text-4xl font-bold mb-2">{cashierProfile.name}</h1>
+                <p className="text-xl text-yellow-200 mb-4">{cashierProfile.role}</p>
+                <div className="flex items-center space-x-6 text-sm">
+                  <div className="flex items-center space-x-2">
+                    <FiShield className="h-5 w-5" />
+                    <span>ID: {cashierProfile.employeeId}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <FiCalendar className="h-5 w-5" />
+                    <span>Joined: {new Date(cashierProfile.joinDate).toLocaleDateString('en-US', { 
+                      month: 'long', 
+                      year: 'numeric' 
+                    })}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <FiMapPin className="h-5 w-5" />
+                    <span>{cashierProfile.location}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="flex flex-col space-y-2">
+              <button className="px-4 py-2 bg-white text-red-600 rounded-lg hover:bg-gray-100 transition-all flex items-center space-x-2 font-medium">
+                <FiEdit className="h-4 w-4" />
+                <span>Edit Profile</span>
+              </button>
+              <button className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 transition-all flex items-center space-x-2 font-medium">
+                <FiSettings className="h-4 w-4" />
+                <span>Settings</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Bar */}
+        <div className="bg-black/30 backdrop-blur-sm px-8 py-4">
+          <div className="grid grid-cols-4 gap-6">
+            <div className="text-center">
+              <p className="text-yellow-200 text-sm mb-1">Today's Sales</p>
+              <p className="text-white text-2xl font-bold">UGX {performanceMetrics.todaySales.toLocaleString()}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-yellow-200 text-sm mb-1">Transactions</p>
+              <p className="text-white text-2xl font-bold">{performanceMetrics.todayTransactions}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-yellow-200 text-sm mb-1">Efficiency</p>
+              <p className="text-white text-2xl font-bold">{performanceMetrics.efficiency}%</p>
+            </div>
+            <div className="text-center">
+              <p className="text-yellow-200 text-sm mb-1">Scan Rate</p>
+              <p className="text-white text-2xl font-bold">{performanceMetrics.scanRate} /min</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Profile Details Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Personal Information */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-gray-900">Personal Information</h3>
+            <FiUser className="h-6 w-6 text-gray-400" />
+          </div>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm text-gray-500">Full Name</p>
+              <p className="text-base font-semibold text-gray-900">{cashierProfile.name}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Employee ID</p>
+              <p className="text-base font-semibold text-gray-900">{cashierProfile.employeeId}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Department</p>
+              <p className="text-base font-semibold text-gray-900">{cashierProfile.department}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Position</p>
+              <p className="text-base font-semibold text-gray-900">{cashierProfile.role}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Join Date</p>
+              <p className="text-base font-semibold text-gray-900">
+                {new Date(cashierProfile.joinDate).toLocaleDateString('en-US', { 
+                  day: 'numeric',
+                  month: 'long', 
+                  year: 'numeric' 
+                })}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Languages</p>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {cashierProfile.languages.map(lang => (
+                  <span key={lang} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                    {lang}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Work Details */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-gray-900">Work Details</h3>
+            <FiClock className="h-6 w-6 text-gray-400" />
+          </div>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm text-gray-500">Current Shift</p>
+              <p className="text-base font-semibold text-gray-900">{cashierProfile.shift}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Assigned Register</p>
+              <p className="text-base font-semibold text-gray-900">{cashierProfile.register}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Branch Location</p>
+              <p className="text-base font-semibold text-gray-900">{cashierProfile.location}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Direct Manager</p>
+              <p className="text-base font-semibold text-gray-900">{cashierProfile.manager}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Work Status</p>
+              <span className="inline-flex items-center px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                Active
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Permissions & Access */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-gray-900">Permissions & Access</h3>
+            <FiShield className="h-6 w-6 text-gray-400" />
+          </div>
+          <div className="space-y-3">
+            {Object.entries(cashierProfile.permissions).map(([key, value]) => (
+              <div key={key} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <span className="text-sm font-medium text-gray-700 capitalize">
+                  {key.replace(/([A-Z])/g, ' $1').trim()}
+                </span>
+                {value ? (
+                  <span className="flex items-center text-green-600">
+                    <FiCheckCircle className="h-5 w-5" />
+                  </span>
+                ) : (
+                  <span className="flex items-center text-red-600">
+                    <FiXCircle className="h-5 w-5" />
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Performance Overview */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-bold text-gray-900">Performance Overview</h3>
+          <FiTrendingUp className="h-6 w-6 text-green-500" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
+            <FiDollarSign className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+            <p className="text-sm text-blue-600 mb-1">Today's Sales</p>
+            <p className="text-2xl font-bold text-gray-900">
+              UGX {(performanceMetrics.todaySales / 1000).toFixed(0)}K
+            </p>
+            <p className="text-xs text-gray-600 mt-1">+12% from yesterday</p>
+          </div>
+          <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
+            <FiShoppingCart className="h-8 w-8 text-green-600 mx-auto mb-2" />
+            <p className="text-sm text-green-600 mb-1">Transactions</p>
+            <p className="text-2xl font-bold text-gray-900">{performanceMetrics.todayTransactions}</p>
+            <p className="text-xs text-gray-600 mt-1">+8% from yesterday</p>
+          </div>
+          <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
+            <FiZap className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+            <p className="text-sm text-purple-600 mb-1">Efficiency</p>
+            <p className="text-2xl font-bold text-gray-900">{performanceMetrics.efficiency}%</p>
+            <p className="text-xs text-gray-600 mt-1">Above target</p>
+          </div>
+          <div className="text-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl">
+            <FiUsers className="h-8 w-8 text-orange-600 mx-auto mb-2" />
+            <p className="text-sm text-orange-600 mb-1">Customers Served</p>
+            <p className="text-2xl font-bold text-gray-900">{performanceMetrics.customersServed}</p>
+            <p className="text-xs text-gray-600 mt-1">Great service!</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Achievements & Badges */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-bold text-gray-900">Achievements & Recognition</h3>
+          <FiAward className="h-6 w-6 text-yellow-500" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="text-center p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl border-2 border-yellow-300">
+            <div className="text-4xl mb-2">🏆</div>
+            <p className="text-sm font-bold text-gray-900">Top Performer</p>
+            <p className="text-xs text-gray-600">This Month</p>
+          </div>
+          <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-2 border-blue-300">
+            <div className="text-4xl mb-2">⭐</div>
+            <p className="text-sm font-bold text-gray-900">Customer Favorite</p>
+            <p className="text-xs text-gray-600">5-Star Rating</p>
+          </div>
+          <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border-2 border-green-300">
+            <div className="text-4xl mb-2">🎯</div>
+            <p className="text-sm font-bold text-gray-900">100% Accuracy</p>
+            <p className="text-xs text-gray-600">Last Week</p>
+          </div>
+          <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border-2 border-purple-300">
+            <div className="text-4xl mb-2">💎</div>
+            <p className="text-sm font-bold text-gray-900">Loyalty Expert</p>
+            <p className="text-xs text-gray-600">Most Signups</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderPerformance = () => (
     <div className="space-y-6 animate-slideInRight container-neon rounded-2xl p-8">
       <div className="bg-white rounded-xl p-6 shadow-lg">
@@ -1012,6 +1266,7 @@ const CashierPortal = () => {
   const tabs = [
     { id: 'pos', label: 'POS System', icon: FiShoppingCart },
     { id: 'dashboard', label: 'Dashboard', icon: FiBarChart },
+    { id: 'profile', label: 'My Profile', icon: FiUser },
     { id: 'performance', label: 'Performance', icon: FiTrendingUp },
     { id: 'inventory', label: 'Till Supplies', icon: FiPackage },
     { id: 'notifications', label: 'Notifications', icon: FiBell }
@@ -1102,14 +1357,21 @@ const CashierPortal = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <p className="text-sm text-gray-600">{cashierProfile.name}</p>
-                <p className="text-xs text-gray-500">{cashierProfile.role}</p>
-              </div>
+              <button 
+                onClick={() => setActiveTab('profile')}
+                className="text-right hover:bg-gray-50 p-2 rounded-lg transition-all duration-300 cursor-pointer group"
+              >
+                <p className="text-sm text-gray-600 group-hover:text-gray-900 font-medium">{cashierProfile.name}</p>
+                <p className="text-xs text-gray-500 group-hover:text-gray-700">{cashierProfile.role}</p>
+              </button>
               <button className="p-2 text-gray-400 hover:text-gray-600 transition-all duration-300">
                 <FiBell className="h-6 w-6" />
               </button>
-              <button className="p-2 text-gray-400 hover:text-gray-600 transition-all duration-300">
+              <button 
+                onClick={() => setActiveTab('profile')}
+                className="p-2 text-gray-400 hover:text-gray-600 transition-all duration-300"
+                title="Profile Settings"
+              >
                 <FiSettings className="h-6 w-6" />
               </button>
               <button className="p-2 text-gray-400 hover:text-gray-600 transition-all duration-300">
@@ -1146,6 +1408,7 @@ const CashierPortal = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'pos' && renderPOS()}
         {activeTab === 'dashboard' && renderDashboard()}
+        {activeTab === 'profile' && renderProfile()}
         {activeTab === 'performance' && renderPerformance()}
         {activeTab === 'inventory' && renderInventory()}
         {activeTab === 'notifications' && renderNotifications()}

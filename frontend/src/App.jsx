@@ -11,6 +11,10 @@ import AdminProtectedRoute from '@/components/AdminProtectedRoute';
 import AdminPortal from '@/pages/AdminPortal';
 import AdminProfile from '@/pages/AdminProfile';
 import AdminAuth from '@/pages/AdminAuth';
+import ManagerAuth from '@/pages/ManagerAuth';
+import CashierAuth from '@/pages/CashierAuth';
+import EmployeeAuth from '@/pages/EmployeeAuth';
+import SupplierAuth from '@/pages/SupplierAuth';
 import ManagerPortal from '@/pages/ManagerPortal';
 import EmployeePortal from '@/pages/EmployeePortal';
 import SupplierPortal from '@/pages/SupplierPortal';
@@ -89,6 +93,26 @@ function App() {
               <Route path="/admin-auth" element={<AdminAuth />} />
               <Route path="/admin-signup" element={<AdminAuth />} />
               <Route path="/admin" element={<Navigate to="/admin-login" replace />} />
+              
+              {/* Manager authentication routes */}
+              <Route path="/manager-login" element={<ManagerAuth />} />
+              <Route path="/manager-auth" element={<ManagerAuth />} />
+              <Route path="/manager-signup" element={<ManagerAuth />} />
+              
+              {/* Cashier authentication routes */}
+              <Route path="/cashier-login" element={<CashierAuth />} />
+              <Route path="/cashier-auth" element={<CashierAuth />} />
+              <Route path="/cashier-signup" element={<CashierAuth />} />
+              
+              {/* Employee authentication routes */}
+              <Route path="/employee-login" element={<EmployeeAuth />} />
+              <Route path="/employee-auth" element={<EmployeeAuth />} />
+              <Route path="/employee-signup" element={<EmployeeAuth />} />
+              
+              {/* Supplier authentication routes */}
+              <Route path="/supplier-login" element={<SupplierAuth />} />
+              <Route path="/supplier-auth" element={<SupplierAuth />} />
+              <Route path="/supplier-signup" element={<SupplierAuth />} />
               
               {/* Admin routes - protected, require authentication */}
               <Route 

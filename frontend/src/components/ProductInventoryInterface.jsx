@@ -1,89 +1,87 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { FiPackage, FiShoppingCart, FiSettings, FiTrendingUp, FiAlertTriangle } from 'react-icons/fi';
+import { supabase } from '../services/supabase';
 
 const ProductInventoryInterface = () => {
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: 'iPhone 15 Pro Max 256GB',
-      sku: 'IP15PM-256-BLU',
-      price: 4500000,
-      stock: 25,
-      minStock: 10,
-      maxStock: 50,
-      status: 'In Stock',
-      location: 'A1-B2-S3',
-      supplier: 'Tech Solutions Ltd'
-    },
-    {
-      id: 2,
-      name: 'Samsung Galaxy A54 128GB',
-      sku: 'SGA54-128-BLK',
-      price: 1200000,
-      stock: 8,
-      minStock: 15,
-      maxStock: 40,
-      status: 'Low Stock',
-      location: 'A1-B3-S1',
-      supplier: 'Mobile World'
-    },
-    {
-      id: 3,
-      name: 'Fresh Organic Bananas (50kg)',
-      sku: 'ORG-BAN-50KG',
-      price: 150000,
-      stock: 0,
-      minStock: 20,
-      maxStock: 100,
-      status: 'Out of Stock',
-      location: 'C1-F1-S2',
-      supplier: 'Fresh Produce Co'
-    },
-    {
-      id: 4,
-      name: 'Premium Rice - Local (25kg)',
-      sku: 'RICE-PREM-25KG',
-      price: 120000,
-      stock: 45,
-      minStock: 20,
-      maxStock: 80,
-      status: 'In Stock',
-      location: 'B2-G1-S4',
-      supplier: 'Grain Masters Ltd'
-    },
-    {
-      id: 5,
-      name: 'Cooking Oil - Sunflower (5L)',
-      sku: 'OIL-SUN-5L',
-      price: 25000,
-      stock: 12,
-      minStock: 15,
-      maxStock: 60,
-      status: 'Low Stock',
-      location: 'B1-O1-S2',
-      supplier: 'Fresh Dairy Ltd'
-    },
-    {
-      id: 6,
-      name: 'MacBook Air M2 512GB',
-      sku: 'MBA-M2-512-SLV',
-      price: 5500000,
-      stock: 15,
-      minStock: 8,
-      maxStock: 25,
-      status: 'In Stock',
-      location: 'A2-L1-S1',
-      supplier: 'Tech Solutions Ltd'
-    }
-  ]);
-
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showAdjustModal, setShowAdjustModal] = useState(false);
   const [showReorderModal, setShowReorderModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [adjustmentAmount, setAdjustmentAmount] = useState(0);
   const [adjustmentReason, setAdjustmentReason] = useState('');
   const [reorderQuantity, setReorderQuantity] = useState(0);
+
+  // Load products from Supabase on mount
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch products with inventory data
+      const { data: productsData, error: productsError } = await supabase
+        .from('products')
+        .select(`
+          *,
+          inventory (
+            current_stock,
+            minimum_stock,
+            maximum_stock,
+            status,
+            location
+          ),
+          suppliers (
+            company_name
+          )
+        `)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (productsError) {
+        console.error('Error loading products:', productsError);
+        toast.error('Failed to load products from database');
+        return;
+      }
+
+      // Transform data to match component format
+      const transformedProducts = (productsData || []).map(p => ({
+        id: p.id,
+        name: p.name,
+        sku: p.sku,
+        price: parseFloat(p.selling_price || 0),
+        stock: p.inventory?.[0]?.current_stock || 0,
+        minStock: p.inventory?.[0]?.minimum_stock || 10,
+        maxStock: p.inventory?.[0]?.maximum_stock || 100,
+        status: calculateStatus(
+          p.inventory?.[0]?.current_stock || 0,
+          p.inventory?.[0]?.minimum_stock || 10
+        ),
+        location: p.inventory?.[0]?.location || 'Not assigned',
+        supplier: p.suppliers?.company_name || 'No supplier',
+        productId: p.id,
+        inventoryId: p.inventory?.[0]?.id
+      }));
+
+      setProducts(transformedProducts);
+      console.log(`✅ Loaded ${transformedProducts.length} products from Supabase`);
+      
+    } catch (error) {
+      console.error('Error in loadProducts:', error);
+      toast.error('Failed to load inventory data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const calculateStatus = (stock, minStock) => {
+    if (stock === 0) return 'Out of Stock';
+    if (stock <= minStock) return 'Low Stock';
+    return 'In Stock';
+  };
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-UG', {
@@ -120,31 +118,45 @@ const ProductInventoryInterface = () => {
     setShowAdjustModal(true);
   };
 
-  const processReorder = () => {
+  const processReorder = async () => {
     if (selectedProduct && reorderQuantity > 0) {
-      // Simulate reorder processing
-      toast.info(
-        <div>
-          <div className="font-bold">🔄 Reorder Request Submitted</div>
-          <div className="text-sm mt-1">
-            <div>{selectedProduct.name}</div>
-            <div>Quantity: {reorderQuantity} units</div>
-            <div>Estimated Cost: {formatCurrency(selectedProduct.price * reorderQuantity)}</div>
-            <div>Supplier: {selectedProduct.supplier}</div>
-          </div>
-        </div>,
-        { autoClose: 4000 }
-      );
+      try {
+        toast.info(
+          <div>
+            <div className="font-bold">🔄 Processing Reorder...</div>
+            <div className="text-sm mt-1">
+              <div>{selectedProduct.name}</div>
+              <div>Quantity: {reorderQuantity} units</div>
+              <div>Estimated Cost: {formatCurrency(selectedProduct.price * reorderQuantity)}</div>
+              <div>Supplier: {selectedProduct.supplier}</div>
+            </div>
+          </div>,
+          { autoClose: 2000 }
+        );
 
-      // Simulate processing time and stock update
-      setTimeout(() => {
+        const newStock = selectedProduct.stock + reorderQuantity;
+        
+        // Update inventory in Supabase
+        const { error: updateError } = await supabase
+          .from('inventory')
+          .update({
+            current_stock: newStock,
+            last_restocked_at: new Date().toISOString(),
+            status: calculateStatus(newStock, selectedProduct.minStock).toLowerCase().replace(' ', '_')
+          })
+          .eq('product_id', selectedProduct.productId);
+
+        if (updateError) {
+          throw updateError;
+        }
+
+        // Update local state
         setProducts(prev => prev.map(p => {
           if (p.id === selectedProduct.id) {
-            const newStock = p.stock + reorderQuantity;
             return {
               ...p,
               stock: newStock,
-              status: newStock > p.minStock ? 'In Stock' : p.status
+              status: calculateStatus(newStock, p.minStock)
             };
           }
           return p;
@@ -156,50 +168,77 @@ const ProductInventoryInterface = () => {
             <div className="text-sm mt-1">
               <div>{selectedProduct.name}</div>
               <div>Added: {reorderQuantity} units</div>
-              <div>New Stock Level: {selectedProduct.stock + reorderQuantity}</div>
+              <div>New Stock Level: {newStock}</div>
             </div>
           </div>,
           { autoClose: 3000 }
         );
-      }, 2000);
 
-      setShowReorderModal(false);
+        setShowReorderModal(false);
+      } catch (error) {
+        console.error('Error processing reorder:', error);
+        toast.error('Failed to update inventory in database');
+      }
     }
   };
 
-  const processAdjustment = () => {
+  const processAdjustment = async () => {
     if (selectedProduct && adjustmentAmount !== 0 && adjustmentReason.trim()) {
-      const newStock = Math.max(0, selectedProduct.stock + adjustmentAmount);
-      
-      setProducts(prev => prev.map(p => {
-        if (p.id === selectedProduct.id) {
-          let newStatus = 'In Stock';
-          if (newStock === 0) newStatus = 'Out of Stock';
-          else if (newStock <= p.minStock) newStatus = 'Low Stock';
+      try {
+        const newStock = Math.max(0, selectedProduct.stock + adjustmentAmount);
+        
+        // Update inventory in Supabase
+        const { error: updateError } = await supabase
+          .from('inventory')
+          .update({
+            current_stock: newStock,
+            status: calculateStatus(newStock, selectedProduct.minStock).toLowerCase().replace(' ', '_'),
+            updated_at: new Date().toISOString()
+          })
+          .eq('product_id', selectedProduct.productId);
 
-          return {
-            ...p,
-            stock: newStock,
-            status: newStatus
-          };
+        if (updateError) {
+          throw updateError;
         }
-        return p;
-      }));
 
-      toast.success(
-        <div>
-          <div className="font-bold">📦 Stock Adjusted Successfully</div>
-          <div className="text-sm mt-1">
-            <div>{selectedProduct.name}</div>
-            <div>Adjustment: {adjustmentAmount > 0 ? '+' : ''}{adjustmentAmount} units</div>
-            <div>Reason: {adjustmentReason}</div>
-            <div>New Stock: {newStock} units</div>
-          </div>
-        </div>,
-        { autoClose: 4000 }
-      );
+        // Log the adjustment (optional - create stock_adjustments table later)
+        console.log('Stock adjustment:', {
+          product: selectedProduct.name,
+          amount: adjustmentAmount,
+          reason: adjustmentReason,
+          newStock
+        });
 
-      setShowAdjustModal(false);
+        // Update local state
+        setProducts(prev => prev.map(p => {
+          if (p.id === selectedProduct.id) {
+            return {
+              ...p,
+              stock: newStock,
+              status: calculateStatus(newStock, p.minStock)
+            };
+          }
+          return p;
+        }));
+
+        toast.success(
+          <div>
+            <div className="font-bold">📦 Stock Adjusted Successfully</div>
+            <div className="text-sm mt-1">
+              <div>{selectedProduct.name}</div>
+              <div>Adjustment: {adjustmentAmount > 0 ? '+' : ''}{adjustmentAmount} units</div>
+              <div>Reason: {adjustmentReason}</div>
+              <div>New Stock: {newStock} units</div>
+            </div>
+          </div>,
+          { autoClose: 4000 }
+        );
+
+        setShowAdjustModal(false);
+      } catch (error) {
+        console.error('Error processing adjustment:', error);
+        toast.error('Failed to update inventory in database');
+      }
     }
   };
 
@@ -210,9 +249,18 @@ const ProductInventoryInterface = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <FiPackage className="h-6 w-6 text-blue-600" />
-            <h2 className="text-xl font-semibold text-gray-900">Products (6)</h2>
+            <h2 className="text-xl font-semibold text-gray-900">
+              Products ({loading ? '...' : products.length})
+            </h2>
           </div>
           <div className="flex space-x-2">
+            <button
+              onClick={loadProducts}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+              disabled={loading}
+            >
+              {loading ? '🔄 Loading...' : '🔄 Refresh'}
+            </button>
             <select className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
               <option>All Categories</option>
               <option>Electronics</option>
@@ -223,10 +271,28 @@ const ProductInventoryInterface = () => {
         </div>
       </div>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="p-12 text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <p className="mt-4 text-gray-600">Loading products from database...</p>
+        </div>
+      )}
+
+      {/* No Products State */}
+      {!loading && products.length === 0 && (
+        <div className="p-12 text-center">
+          <FiPackage className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">No Products Found</h3>
+          <p className="text-gray-600 mb-4">Add products to your inventory to get started</p>
+        </div>
+      )}
+
       {/* Products Grid */}
-      <div className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product) => (
+      {!loading && products.length > 0 && (
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {products.map((product) => (
             <div key={product.id} className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
               {/* Product Header */}
               <div className="flex items-start justify-between mb-4">
@@ -286,9 +352,10 @@ const ProductInventoryInterface = () => {
                 </button>
               </div>
             </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Reorder Modal */}
       {showReorderModal && selectedProduct && (

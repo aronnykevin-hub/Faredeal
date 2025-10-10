@@ -26,7 +26,7 @@ const PortalLanding = () => {
         'Financial Performance Monitoring',
         'Inventory Optimization'
       ],
-      route: '/manager-portal',
+      route: '/manager-login',
       stats: {
         users: '12',
         revenue: '$125K',
@@ -47,11 +47,32 @@ const PortalLanding = () => {
         'Achievement System',
         'Shift Management Tools'
       ],
-      route: '/employee-portal',
+      route: '/cashier-login',
       stats: {
         tasks: '8',
         sales: '$2.4K',
         rating: '4.8★'
+      }
+    },
+    {
+      id: 'employee',
+      title: 'Employee Portal',
+      description: 'Personal workspace for general employees',
+      icon: '👥',
+      color: 'from-indigo-600 to-blue-600',
+      features: [
+        'Personal Dashboard',
+        'Task Management',
+        'Performance Tracking',
+        'Schedule Management',
+        'Training Resources',
+        'Team Communication'
+      ],
+      route: '/employee-login',
+      stats: {
+        tasks: '12',
+        hours: '160',
+        rating: '4.5★'
       }
     },
     {
@@ -68,7 +89,7 @@ const PortalLanding = () => {
         'Inventory Monitoring',
         'Partnership Goals'
       ],
-      route: '/supplier-portal',
+      route: '/supplier-login',
       stats: {
         orders: '156',
         revenue: '$125K',
